@@ -1,4 +1,6 @@
 <?php
+$path = dirname(__DIR__);
+putenv("HOME=$path");
 
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
