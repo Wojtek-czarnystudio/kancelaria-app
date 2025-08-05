@@ -1,39 +1,38 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.2-fpm
 
-# Install system dependencies
-RUN apk add --no-cache \
-  bash \
-  nginx \
-  php82-cli \
-  php82-fpm \
-  php82-pdo_pgsql \
-  php82-mbstring \
-  php82-xml \
-  php82-dom \
-  php82-curl \
-  php82-zip \
-  php82-gd \
-  php82-ctype \
-  php82-session \
-  php82-tokenizer
+# Instalacja zależności systemowych
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    libzip-dev \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Copy nginx configuration
-COPY ./nginx/default.conf /etc/nginx/conf.d/
+# Instalacja Composera
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy code
-COPY . /var/www/html
+# Ustawienie katalogu roboczego
+WORKDIR /var/www
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Kopiowanie plików projektu
+COPY . .
 
-# Expose port
-EXPOSE 80
-
-# Set working directory
-WORKDIR /var/www/html
-
-# Install Composer dependencies
+# Instalacja zależności PHP (prod)
 RUN composer install --no-dev --optimize-autoloader
 
-# Start services
-CMD ["/bin/bash", "-c", "php artisan migrate && nginx && php-fpm"]
+# Ustawienia uprawnień
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 755 /var/www/storage
+
+# Ustawienie portu
+EXPOSE 8000
+
+# Start serwera Laravel
+CMD php artisan serve --host=0.0.0.0 --port=8000
