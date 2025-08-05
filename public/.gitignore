@@ -1,0 +1,16 @@
+/node_modules
+/vendor
+/.env
+
+# Laravel specific
+/public/storage
+/storage/*.key
+/storage/framework/cache/*.php
+/storage/framework/sessions/*.php
+/storage/framework/views/*.php
+/storage/logs/*.log
+/bootstrap/cache/*.php
+
+# Npm
+npm-debug.log
+yarn-error.log
